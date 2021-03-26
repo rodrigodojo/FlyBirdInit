@@ -2,6 +2,7 @@ package com.dojo.flybirdinit;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -22,12 +23,15 @@ public class FlyBirdInit extends ApplicationAdapter {
     Texture obstaculoCima;
     Texture imagemFundo;
     Texture[] passaros;
-	Random alturaRandom;
-	Circle circuloPassaro;
-	Rectangle retanguloCima;
-	Rectangle retanguloBaixo;
-	BitmapFont textoPontuacao;
-	BitmapFont textoGameOver;
+    Random alturaRandom;
+    Circle circuloPassaro;
+    Rectangle retanguloCima;
+    Rectangle retanguloBaixo;
+    BitmapFont textoPontuacao;
+    BitmapFont textoGameOver;
+    Sound somVoa;
+    Sound somHit;
+    Sound somScore;
 
     boolean marcouPonto;
     int estadoJogo;
@@ -76,6 +80,9 @@ public class FlyBirdInit extends ApplicationAdapter {
         gravidade = 2;
         pontos = 0;
 
+        somVoa = Gdx.audio.newSound(Gdx.files.internal("somVoa.mp3"));
+        somHit = Gdx.audio.newSound(Gdx.files.internal("somHit.mp3"));
+        somScore = Gdx.audio.newSound(Gdx.files.internal("somScore.mp3"));
     }
 
     @Override
@@ -87,7 +94,7 @@ public class FlyBirdInit extends ApplicationAdapter {
             if (Gdx.input.justTouched()) {
                 velocidade = -30;
                 estadoJogo = 1;
-                //somVoa.play();
+                somVoa.play();
             }
         } else if (estadoJogo == 1) {
             posicaoX -= Gdx.graphics.getDeltaTime() * 500;
@@ -102,7 +109,7 @@ public class FlyBirdInit extends ApplicationAdapter {
 
             if (Gdx.input.justTouched()) {
                 velocidade = -30;
-                //somVoa.play();
+                somVoa.play();
             }
 
             if (posicaoY > 0 || velocidade < 0) {
@@ -128,7 +135,7 @@ public class FlyBirdInit extends ApplicationAdapter {
             if (!marcouPonto) {
                 pontos++;
                 marcouPonto = true;
-                //somScore.play();
+                somScore.play();
             }
         }
 
@@ -143,8 +150,8 @@ public class FlyBirdInit extends ApplicationAdapter {
         batch.draw(passaros[((int) contador)], 50 + posicaoXpassaro, posicaoY);
 
         textoPontuacao.draw(batch, String.valueOf(pontos), Gdx.graphics.getWidth() / 2 - 20, Gdx.graphics.getHeight() - 110);
-        if (estadoJogo==2){
-            textoGameOver.draw(batch, "Toque para reiniciar!", Gdx.graphics.getWidth()/2 - 110, Gdx.graphics.getHeight()/2);
+        if (estadoJogo == 2) {
+            textoGameOver.draw(batch, "Toque para reiniciar!", Gdx.graphics.getWidth() / 2 - 110, Gdx.graphics.getHeight() / 2);
         }
 
         batch.end();
@@ -156,23 +163,22 @@ public class FlyBirdInit extends ApplicationAdapter {
         retanguloBaixo = new Rectangle(posicaoX, altura - obstaculoBaixo.getHeight() - vao / 2, obstaculoBaixo.getWidth(), obstaculoBaixo.getHeight());
         circuloPassaro.set(50 + posicaoXpassaro + passaros[0].getWidth() / 2, posicaoY + passaros[0].getWidth() / 2, passaros[0].getHeight() / 2);
 
+        /*
         shapeRenderer.circle(circuloPassaro.x, circuloPassaro.y, circuloPassaro.radius);
         shapeRenderer.rect(posicaoX, altura + vao / 2, obstaculoCima.getWidth(), obstaculoCima.getHeight());
         shapeRenderer.rect(posicaoX, altura - obstaculoBaixo.getHeight() - vao / 2, obstaculoBaixo.getWidth(), obstaculoBaixo.getHeight());
+         */
 
         if (Intersector.overlaps(circuloPassaro, retanguloCima) || Intersector.overlaps(circuloPassaro, retanguloBaixo)) {
             Gdx.app.log("meuLog", "Colidiu!");
-			estadoJogo=2;
-            /*
-			if (estadoJogo==1) {
-				somHit.play();
-				estadoJogo=2;
-			}
-			 */
+
+            if (estadoJogo == 1) {
+                somHit.play();
+                estadoJogo = 2;
+            }
         }
 
         shapeRenderer.end();
-
     }
 
     @Override
